@@ -22,24 +22,43 @@ map系を使えば、概ね問題ないようだ。
 - < buffer > : バッファローカルなキーマッピングを定義する。
 - < expr > : マップ先の文字列をVimの式とみなして、評価した結果の文字列をマップ先とする。
 
-**autocommand**
+# autocommand
 
 Vim内でイベントが発生した際にあらかじめ登録しておいたコマンドを実行する機能。
-定義は以下。
+フォーマットは以下らしい。
 
-    autocmd [group] {event} {pat} [nested] {cmd}
+    augroup {groupname}
+		autocmd!
+		autocmd {event} {pattern} {command}
+	augroup END
 
-例えば、以下のように使うらしい。
+イベントの一覧は、ヘルプのautocommand-eventsの項を参照。書き方の詳細についてはautocommandを参照。
 
-    autocmd FileType vim setlocal expandtab shiftwidth=2
+**保存時の構文チェック**
 
-上記は以下のように読む（一部解釈含む）。
+    augroup rbsyntaxcheck
+		autocmd!
+		autocmd BufWrite *.rb w !ruby -c
+	augroup END
 
-- FileTypeは、filetypeオプションが設定された時に発生するイベントらしい。
-- vimは、パターン。これがfiletype名らしい。
-- FileType vim イベントが発生した時にexpandtabとshiftwidthオプションを設定している、という意味
+**vimgrepコマンド実行後結果一覧を自動で開くようにする**
 
-うーん、もうちょっと咀嚼というか調査が必要。
+結果を見るためには普通:copenをしないといけないが、以下を定義しておくと自動でQuickFixウィンドウを開くようになる。
+
+    augroup grepopen
+		autocmd!
+		autocmd QuickfixCmdPost vimgrep cw
+	augroup END
+
+**テンプレートを読み込む**
+
+    augroup templateload
+		autocmd!
+		autocmd BufNewFile *.html 0r ~/.vim/skeleton.html
+		autocmd BufNewFile *.pl 04 ~/.vim/skeleton.pl
+	augroup END
+
+
 
 # project.vim
 
@@ -55,7 +74,30 @@ Vim内でイベントが発生した際にあらかじめ登録しておいた�
 
 ここまで読んでいる感じ、プロジェクトの機種・ブランチ毎にプロジェクトファイルを作るイメージだろうか。
 
+- \r カーソル下のフォルダのファイルを再帰的に取り込みなおせる。ファイルに変更があった場合に使う。
+- \R サブフォルダも含めてファイルを再帰的に取り込み直せる。ファイルに変更があった場合に使う。
+- \g カーソル下のフォルダに対してgrep
+- \G サブフォルダも含めてgrep
 
+**プロジェクトのウィンドウを素早く開閉できるようにするためには**
+
+    let g:proj_flags="imstc"		" ファイルが選択されたらウィンドウを閉じる
+	nmap <silent> <Leader>P <Plug>ToggleProject	" <Leader>Pで、プロジェクトをトグルで開閉する
+	nmap <silent> <Leader>p :Project<CR>		" <Leader>pで、デフォルトのプロジェクトを開く
+
+# ヘルプのgrep検索
+
+    :helpgrep 検索ワード
+
+# モードをステータスライン色で区別
+
+    au InsertEnter * hi StatusLine guifg=DarkBlue guibg=DarkYellow gui=none ctermfg=Blue ctermbg=Yellow   cterm=none
+    au InsertLeave * hi StatusLine guifg=DarkBlue guibg=DarkGray   gui=none ctermfg=Blue ctermbg=DarkGray cterm=none
+
+使ってたら気持ちよくなるのかな？あんまり効果は分からなかったけど・・
+
+
+# VimFiler
 
 
 
