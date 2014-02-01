@@ -1,5 +1,7 @@
 # やさしいScala入門
 
+日向　俊二、カットシステム
+
 ## 概要
 
 ### コードの書き方
@@ -205,7 +207,312 @@ Cっぽいforループを書きたい場合は、
 		case _ => "Other"
 	}
 
-_は、他の全て、という意味。
+_は、他の全て、という意味。関数定義でも使える。例えば、
 
+    def how(i:Int) = i match {
+		case 0 => "Zero"
+		case 1 => "One"
+		case _ => "Other"
+	}
+
+**return**
+
+    def twiceabs(x:Int): Int = {
+		if (x < 0)
+			return -2 * x
+		x * 2
+	}
+
+**例外**
+
+    val m = 4
+	val n = 0
+	var x: Int = 0
+	try {
+		x = m / n		// ここで例外発生する
+	} catch {
+		case ex: ArithmeticException => println("ぜろわり")		// これが表示される
+		case ex: Exception => println("れいがい")
+	} finally {
+		println("継続")
+	}
+
+	println("end")
+
+
+## 演算子
+
+**加減乗除、関係演算子**
+
+等しくない、は!=。Cとほぼ同じ。
+
+**ビット演算子**
+
+これまたCとほぼ同じ。>>>で符号なし右シフトが可能。
+
+
+## クラスとオブジェクト
+
+### オブジェクト
+
+Scalaでは全てのものがオブジェクト。「2」という値そのものも、Intクラスのインスタンス。
+
+### クラス
+
+- メソッド
+- フィールド：メンバ変数・定数
+
+例
+
+    class Dog {
+		def bark():Unit = println("bowwow")
+	}
+
+使うには、
+
+    val pochi = new Dog
+	pochi.bark
+
+**クラスパラメータ**
+
+    class Dog(name:String, age:Int) {
+		def printProp():Unit = println("name=" + name + " age=" + age.toString)
+	}
+
+### Anyクラス
+
+全てのクラスは、Anyクラスからの派生。
+Anyクラスは以下のメンバを持つ。
+
+- !=
+- ==
+- asInstanceOf[x]：オブジェクトを強制的にx型に型変換する
+- isInstanceOf[x]：オブジェクトがx型ならtrueを返す
+- equals(x)：このオブジェクトとxが同じならtrueを返す
+- hashCode()：オブジェクトのハッシュ値を返す(Int)
+- toString
+
+**関数のオーバーライド**
+
+    class Dog (name:String, age:Int) {
+		override def toString(): String = {"name = " + name + " age=" + age.toString}
+	}
+
+### trait
+
+クラス同様メソッドとフィールドを定義出来るけれども、オブジェクトを生成することは出来ない。
+クラスに合成（ミックスイン）して使う。
+
+    trait Life {
+		def eat() {println("Mogu mogu") }
+	}
+
+ミックスインする方法その1
+このようにミックスインすると、他のクラスを継承出来ない。
+
+    class Dog1 () extends Life {
+		def twitter(): Unit = println("bowwow")
+	}
+
+ミックスインする方法その2
+
+    class Dog2() extends Animal with Life {
+		def twitter(): Unit = println("bowwow")
+	}
+
+### シングルトンオブジェクト
+
+Scalaのクラスには、静的メソッドを定義出来ない。
+ただしアプリケーションを作成する時にはアプリケーションのオブジェクトを作成する必要があり、
+ひとつのアプリケーションオブジェクトの中でmainメソッドを一つにする必要があるので、
+classではなくobjectを使って、シングルトンオブジェクトを定義する。
+
+    object SimpleApp {
+		def main (args: Array[String] ) {
+			for (arg <- args)
+				println(arg)
+		}
+	}
+
+コンソールからの実行の仕方
+
+    > :load SimpleApp.scala
+	> val msg = Array("a", "b", "c")
+	> SimpleApp.main(msg)
+
+引数を指定しない時
+
+    > test.main( new Array[String](0) )
+
+コンパイルしての実行
+
+    > scalac SimpleApp.scala
+	> scala SimpeApp a b c
+
+ただしアプリケーションを作成する場合、というのはシングルトンオブジェクトの一つの例で、
+main関数以外の関数を持つシングルトンオブジェクトを作ることも可能。例：
+
+    object Circle {
+		val PI:Double 3.14
+		def calcArea(ra:Double) = {
+			println("area=" + (ra * ra * PI).toString)
+		}
+	}
+
+	class Circle (r: Double) {
+		def getArea(): Double = {
+			r * r * Circle.PI
+		}
+	}
+
+使用例
+
+    > :load Circle.scala
+	> val c1 = new Circle(2.0)
+	> c1.getArea
+	res3: Double = 12.5664
+	> Circle.calcArea(3.0)
+	Area=28.2744
+
+
+## Scalaライブラリ
+
+### List
+
+Arrayに似ているが、要素のソート(sort)、逆転(reverse)、削除(remove)など様々な操作が可能。
+使い方
+
+    val names = List("a", "b", "c", "d")
+	names.length			// 4
+	names.apply[0]			// "a"
+	val reversednames = names.reverse
+
+	if ((names exists(_ == "c")) == true) {		// "c"はあるか？
+		println("c lives.")
+	} else {
+		println("c be absent.")
+	}
+
+### Map
+
+値とキーのペアを保存するコンテナ。
+
+    var Dogs = Map[String, Int]()		// 宣言のみ
+	var Cats = Map("Kitty" -> 1, "Tama" -> 2)		// 宣言＆初期化
+	for (cat <- Cats)		// Catsを出力する
+		println(cat)		// 例えば、(Kitty,1) と出力される
+	Dogs += ("Pochi" -> 3)	// 要素の追加の仕方
+	Dogs += ("Kenta" -> 1)
+	if ((Dogs contains ("Pochi")) == true) {
+		println(Dogs("Pochi").toString)		// 3
+	} else {
+		...
+	}
+
+### Random
+
+乱数
+
+### Console
+
+- print
+- println
+- printf：C言語ライク
+- format
+- readLine
+- readBoolean
+- readByte
+- readShort
+- readChar
+- readInt
+- readLong
+- readFloat
+- readDouble
+- readf
+- readf1
+- readf2
+- readf3
+
+### 他
+
+**javaライブラリの利用**
+
+    import java.io._
+
+	val f: File = new File("sample.dat")
+	val fos = new FileOutputStream(f)
+	val dos = new DataOutputStream(fos)
+
+	dos.writeDouble(123.45)
+	dos.writeLong(100000)
+	
+	dos.close()
+	fos.close()
+	
+読み込み時
+
+    val fis = new FileInputStream(f)
+	val dis = new DataInputStream(fis)
+
+	var d = 0.0
+	d = dis.readDouble()
+	var l = 0L
+	l = dis.readLong()
+
+	dis.close
+	fis.close
+
+**Threadとコールバック**
+
+    object tensec {
+    	var sec: Int = 0
+    	def tentimes(callback: () => Unit) {
+    		while (sec < 10) {
+    			callback()
+    			Thread.sleep(1000)
+    		}
+    	}
+    	def printtime() {
+    		sec += 1
+    		print (sec.toString + " ")
+    	}
+    	def main(args: Array[String]) {
+    		tentimes(printtime)
+    		println()
+    	}
+    }
+
+実行結果
+
+    > :load tensec.scala
+	> tensec.main(new Array[String](0))
+	1 2 3 4 5 6 7 8 9 10
+
+## GUIプログラミング
+
+### 初歩
+
+2.8.0以降は、SimpleGUIApplicationではなく、SimpleSwingApplicationになっているので注意。
+単に、Hello Scalaと表示するだけのアプリ。
+
+    // GUIHello.scala
+    import scala.swing._
+    
+    object GUIHello extends SimpleSwingApplication {
+    	def top = new MainFrame {
+    		title = "Hello"
+    		val label = new Label{ text = "Hello, Scala" }
+    		contents = label
+    	}
+    }
+
+
+## 参考リソース
+
+1. [The scala programming language](http:www.scala-lang.org/)
+2. [Developper resources for Java Technology](http://www.oracle.com/technetwork/java/java-sun-com-138872.html)
+3. Scala スケーラブルプログラミング, Martin Odersky, Lex Spoon, Bill Venners, 長尾　高弘、羽生田　栄一、インプレスジャパン
+4. コンピュータサイエンス入門、日向　俊二、カットシステム
+5. 知らないと恥をかくプログラミングの常識、日向　俊二、アスキー・メディアワークス
 
 
