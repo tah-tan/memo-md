@@ -125,5 +125,130 @@ do式は複数の式を束ねる構文（Javaのブロック構文に相当）�
 
 ### 型と値
 
+**関数の型の表し方**
 
+    第1引数の型 -> 第2引数の型 -> ... -> 返り値の型
+
+例：lines
+
+    String -> [String]
+
+例：unlines
+
+    [String] -> String
+
+例：length ([a]は型変数(どんな型と置き換えても良い))
+
+    [a] -> Int
+
+型変数を含む方を、多相型(polymorphic type)という。
+
+例：take
+
+    Int -> [a] -> [a]
+
+**明示的な型宣言**
+
+例：firstNLinesのソースは、
+
+    fiestNLines n cs = ulines $ take n $ lines cs
+
+これの明示的な型宣言は、
+
+    firstNLines :: Int -> String -> String
+
+型を宣言するメリットは、
+
+- 意図した通りにチェックされていることが確実になること
+- ソースコードを読む人に情報量が増えること
+- (そもそも)型変数を大量に使った複雑なコードでコンパイルを通すために必要
+
+### 高階関数
+
+**値としての関数**
+
+Haskellでは、関数名も変数であると考える。
+例えば、
+
+    square n = n * n
+
+は、「nを2乗する関数」という「値」に、変数「square」が束縛されている、と考える。
+
+関数を変数と考えると、関数を引数に取る関数の事を、高階関数という。
+
+**map関数**
+
+例
+
+    map :: (a -> b) -> [a] -> [b]
+    map square [1,2,3]
+
+この結果は、[1,4,9]。すなわち、リストの各要素にsquare関数を適用したリストを返す。
+
+**expand関数(@に置換)**
+
+ソース
+
+    main = do cs <- getContents
+	          putstr $ expand cs
+	
+	expand :: String -> String
+	expand cs = map translate cs
+
+	translate :: Char -> Char
+	translate c = if c == '\t' then '@' else c
+
+注）バックスラッシュtが、タブとしてmarkdown上表現されているので、注意！どうやって直したらいいんだろ・・
+
+if式
+
+    if 条件式 then 式1 else 式2
+
+- Haskellのifは文ではなく式
+- if式全体が値を持つ
+- elseは省略できないので、Javaでいうとif文よりも条件演算子と似ている(a ? b : c)
+- 条件式の値はTrueかFalseでないといけない
+- thenやelseの前後で改行しても構わない（1行で書く必要はない）
+
+改行例1
+
+    if c == '\t'
+		then '@'
+		else c
+
+改行例2
+
+    if c == '\t' then '@'
+				 else c
+
+**==演算子**
+
+型宣言
+
+    (==) :: a -> a -> Bool
+
+**expand関数(タブをスペースに変える)**
+
+    main = do cs <- getContents
+	          putStr $ expand cs
+	
+	expand :: String -> String
+	expand cs = concat $ map expandTab cs
+
+	expandTab :: Char -> String
+	expandTab c = if c == '\t' then "    " else [c]
+
+**concat関数**
+
+リストのリストを連結して一つのリストにする。
+例えば文字列のリストにconcat関数を適用すると1つの文字列になる。
+
+    concat :: [[a]] -> [a]
+
+	concat [[1,2], [3], [4,5]]	-> [1,2,3,4,5]
+	concat [[1,2], [], [3]]		-> [1,2,3]
+	concat ["ab", "c", "de"]	-> "abcde"
+	concat ["ab", "", "c"]		-> "abc"
+	concat [[[1,1], [2,2]], [[3]]] -> [[1,1], [2,2], [3]]	←これがよくわかってない。なんでこうなる？
+															  二番目のリストが無くなったように見えるが・・
 
