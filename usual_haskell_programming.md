@@ -251,4 +251,74 @@ if式
 	concat ["ab", "", "c"]		-> "abc"
 	concat [[[1,1], [2,2]], [[3]]] -> [[1,1], [2,2], [3]]	←これがよくわかってない。なんでこうなる？
 															  二番目のリストが無くなったように見えるが・・
+### パターンマッチ
+
+**expand**
+
+    tabStop = 8
+    
+    main = do cs <- getContents
+              putStr $ expand cs
+    
+    expand :: String -> String
+    expand cs = concatMap expandTab cs
+    
+    expandTab :: Char -> String
+    expandTab '\t' = replicate tabStop ' '
+    expandTab c    = [c]
+
+**パターンマッチ
+
+上記でexpandTabの定義が2つあるが、これはパターンマッチの書き方。
+同じ書き方をif式でやると、
+
+    expandTab c = if c == '\t' then replicate tabStop ' ' else [c]
+
+となる。
+
+**concatMap**
+
+    concatMap :: (a -> [b]) -> [a] -> [b]
+	concatMap f xs
+
+concat $ map f xs　と、concatMap f xs　は等価。
+
+**replicate**
+
+    replicate :: Int -> a -> [a]
+	replicate n x
+
+xをn個だけ含むリストを返す
+
+**map**
+
+    map :: (a -> b) -> [a] -> [b]
+	map f []     = []
+	map f (x:xs) = f x : map f xs
+
+[]は、空リストにマッチするパターン。
+(x:xs)は、空リスト以外にマッチするパターン。
+最後の式は、以下と等価。
+
+    map f (x:xs) = ((f x) : (map f xs))
+
+:は、リストを生成する演算子。関数定義の中で(x:xs)を使うと、リストを先頭要素とそれ以降のリストに分解したが、
+関数定義の中で(y:ys)を使うとその逆が起こり、リストysの先頭にyを追加したリストを生成する。
+例えば、1:[2,3]の値は[1,2,3]であり、5:[]の値は[5]となる。
+
+## モジュールと総合演習
+
+### コマンドライン引数処理とモジュール
+
+**echoコマンド**
+
+    import System
+	main = do args <- getArgs
+	          putstrLn $ unwords args
+
+
+
+
+
+
 
