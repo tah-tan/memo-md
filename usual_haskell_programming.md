@@ -312,10 +312,9 @@ xをn個だけ含むリストを返す
 
 **echoコマンド**
 
-    import System
-	main = do args <- getArgs
-	          putstrLn $ unwords args
-
+    import System.Environment
+    main = do args <- getArgs
+              putStrLn $ unwords args
 
 
 
