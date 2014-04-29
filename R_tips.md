@@ -126,6 +126,33 @@
 
     data.frame(X)
 
+** データの加工 **
+
+    MYDATA$WEIGHT <- weight			# データフレームMYDATAに新しい列WEIGHTを追加する
+	merge(MYDATA, MYDATA2)			# データフレームMYDATAとMYDATA2を結合する。片方にしかデータが無い行は削除する
+	merge(MYDATA, MYDATA2, all=T)	# データフレームMYDATAとMYDATA2を結合する。片方にしかデータが無くても行を残す
+	rbind(MYDATA, MYDATA2)			# データフレームMYDATAとMYDATA2を縦に並べて結合する（列名が全て同じ場合）
+	cbind(MYDATA, MYDATA2)			# データフレームMYDATAとMYDATA2を横に並べて結合する（行数が同じ場合）
+    na.omit(MYDATA)					# NAを含む行を削除する
+    as.matrix(MYDATA2)				# データフレームを行列にする
+
+** デフォルトで含まれているデータフレーム **
+
+    data()
+
+で見れる。
+確証はないが、大文字で始まるものはベクトルで、小文字ではじまるものはデータフレーム？
+..そうでもなかった。開いてみないとわからないのかも。
+
+** attach, detach **
+
+データフレーム$変数名、と書くのが面倒な場合、
+
+    attach(MYDATA)
+
+のようにすればデータフレーム名を指定せずにデータフレームの変数にアクセス可能。
+
+
 ### read.table
 
 - デフォルトのセパレータはスペース。変えるには、sepで指定。sep=","など。
